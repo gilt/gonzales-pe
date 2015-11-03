@@ -182,11 +182,15 @@ function getLastPositionForArray(content, line, column, colOffset) {
 
   if (!colOffset) return position;
 
-  if (tokens[pos - 1].type !== 'Newline') {
-    position[1] += colOffset;
+  if (tokens[pos - 1]) {
+    if (tokens[pos - 1].type !== 'Newline') {
+      position[1] += colOffset;
+    } else {
+      position[0]++;
+      position[1] = 1;
+    }
   } else {
-    position[0]++;
-    position[1] = 1;
+    position[1] = colOffset;
   }
 
   return position;
@@ -900,12 +904,14 @@ function getCombinator1() {
  * (1) `>`
  * (2) `+`
  * (3) `~`
+ * (4) `&` : trailing parent selector. eg; input[type=button]&
  */
 function checkCombinator2(i) {
   let type = tokens[i].type;
   if (type === TokenType.PlusSign ||
       type === TokenType.GreaterThanSign ||
-      type === TokenType.Tilde) return 1;
+      type === TokenType.Tilde ||
+      type === TokenType.Ampersand) return 1;
   else return 0;
 }
 
@@ -1449,10 +1455,11 @@ function checkIdent(i) {
       tokens[i].type === TokenType.Identifier ||
       tokens[i].type === TokenType.DollarSign ||
       tokens[i].type === TokenType.Asterisk) i++;
-  else return 0;
+  else if (tokens[i].type !== TokenType.CommercialAt)
+    return 0;
 
   // Remember if previous token's type was identifier:
-  wasIdent = tokens[i - 1].type === TokenType.Identifier;
+  wasIdent = tokens[i - 1] && tokens[i - 1].type === TokenType.Identifier;
 
   for (; i < tokensLength; i++) {
     if (l = checkInterpolatedVariable(i)) i += l;
@@ -1467,7 +1474,9 @@ function checkIdent(i) {
     }
   }
 
-  if (!wasIdent && tokens[start].type !== TokenType.Asterisk) return 0;
+  if (!wasIdent &&
+      tokens[start].type !== TokenType.Asterisk &&
+      tokens[start].type !== TokenType.CommercialAt) return 0;
 
   tokens[start].ident_last = i - 1;
 
@@ -3359,7 +3368,6 @@ function checkVariablesList(i) {
   if (i >= tokensLength) return 0;
 
   if (l = checkVariable(i)) i += l;
-  else return 0;
 
   while (tokens[i] && tokens[i].type === TokenType.FullStop) {
     d++;
@@ -3376,12 +3384,12 @@ function checkVariablesList(i) {
  */
 function getVariablesList() {
   let startPos = pos;
-  let x = [getVariable()];
   var token = tokens[startPos];
+  let x = token.type === TokenType.FullStop ? [] : [getVariable()];
   var line = token.ln;
   var column = token.col;
-
   var end = getLastPosition(x, line, column, 3);
+
   pos += 3;
 
   return newNode(NodeType.VariablesListType, x, line, column, end);
