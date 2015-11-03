@@ -3089,6 +3089,7 @@ function checkTset(i) {
   else if (l = checkAny(i)) tokens[i].tset_child = 2;
   else if (l = checkSC(i)) tokens[i].tset_child = 3;
   else if (l = checkOperator(i)) tokens[i].tset_child = 4;
+  else if (l = checkEscapedString(i)) tokens[i].tset_child = 5;
 
   return l;
 }
@@ -3102,6 +3103,7 @@ function getTset() {
   else if (childType === 2) return getAny();
   else if (childType === 3) return getSC();
   else if (childType === 4) return getOperator();
+  else if (childType === 5) return getEscapedString();
 }
 
 /**
