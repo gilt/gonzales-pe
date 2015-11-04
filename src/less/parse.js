@@ -1995,6 +1995,10 @@ function checkMixin2(i) {
 
   if (i >= tokensLength) return 0;
 
+  if (l = checkCombinator(i)) i += l;
+
+  if (l = checkSC(i)) i += l;
+
   if (l = checkClass(i) || checkShash(i)) i += l;
   else return 0;
 
@@ -2012,6 +2016,10 @@ function checkMixin2(i) {
 function getMixin2() {
   let startPos = pos;
   let x = [];
+
+  if (checkCombinator(pos)) x.push(getCombinator());
+
+  if (checkSC(pos)) x = x.concat(getSC());
 
   x.push(checkClass(pos) ? getClass() : getShash());
 
