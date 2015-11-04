@@ -15,7 +15,7 @@
     "esnext": true,
     "maximumLineLength": 80,
     "requireBlocksOnNewline": 1,
-    "requireCapitalizedComments": true,
+    "requireCapitalizedComments": null,
     "requireCapitalizedConstructors": true,
     "requireCommaBeforeLineBreak": true,
     "requireDotNotation": true,

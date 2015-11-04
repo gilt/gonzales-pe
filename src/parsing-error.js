@@ -10,6 +10,28 @@ function ParsingError(e, css) {
   this.line = e.line;
   this.syntax = e.syntax;
   this.css_ = css;
+  this.super_ = {};
+
+  for (var prop in e) {
+    if (e.stack) {
+      this.stack = e.stack;
+    }
+    else if (e.hasOwnProperty(prop)) {
+      (this[prop] ? this.super_ : this)[prop] = e[prop];
+    }
+  }
+
+  if (e.stack) {
+    this.stack = e.stack;
+  }
+  else if (Error.hasOwnProperty('captureStackTrace')) {
+    Error.captureStackTrace(this, this.constructor);
+  }
+  else {
+    Object.defineProperty(this, 'stack', {
+      value: new Error().stack
+    });
+  }
 }
 
 ParsingError.prototype = {

@@ -45,6 +45,7 @@ function shouldBeOk() {
 
     try {
         var ast = gonzales.parse(input, options);
+
         expected = JSON.parse(expected);
         assert.deepEqual(ast, expected);
     } catch (e) {

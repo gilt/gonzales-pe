@@ -65,8 +65,12 @@ var contexts = {
  */
 function throwError(i) {
   var ln = tokens[i].ln;
+  var e = new Error();
 
-  throw {line: ln, syntax: 'less'};
+  e.line = ln;
+  e.syntax = 'less';
+
+  throw e;
 }
 
 /**
@@ -636,24 +640,29 @@ function getBlockdecl() {
 function checkBlockdecl1(i) {
   let start = i;
   let l;
+  let kind;
 
   if (l = checkSC(i)) i += l;
 
-  if (l = checkCondition(i)) tokens[i].bd_kind = 1;
-  else if (l = checkExtend(i)) tokens[i].bd_kind = 6;
-  else if (l = checkRuleset(i)) tokens[i].bd_kind = 2;
-  else if (l = checkDeclaration(i)) tokens[i].bd_kind = 3;
-  else if (l = checkAtrule(i)) tokens[i].bd_kind = 4;
-  else if (l = checkInclude(i)) tokens[i].bd_kind = 5;
+  if (l = checkCondition(i)) kind = 1;
+  else if (l = checkExtend(i)) kind = 6;
+  else if (l = checkRuleset(i)) kind = 2;
+  else if (l = checkDeclaration(i)) kind = 3;
+  else if (l = checkAtrule(i)) kind = 4;
+  else if (l = checkMixin(i)) kind = 7;
+  else if (l = checkInclude(i)) kind = 5;
   else return 0;
+
+  tokens[i].bd_kind = kind;
 
   i += l;
-
+  // for namespaced mixins, we need to treat a LeftCurlyBracket
+  // followed by a newline or space, as valid.
   if (i < tokensLength && (l = checkDeclDelim(i))) i += l;
-  else return 0;
+  else if (kind !== 7) return 0;
 
   if (l = checkSC(i)) i += l;
-  else return 0;
+  else if (kind !== 7) return 0;
 
   return i - start;
 }
@@ -664,6 +673,7 @@ function checkBlockdecl1(i) {
 function getBlockdecl1() {
   let sc = getSC();
   let x;
+  let addDelimiter = true;
 
   switch (tokens[pos].bd_kind) {
     case 1:
@@ -684,12 +694,21 @@ function getBlockdecl1() {
     case 6:
       x = getExtend();
       break;
+    case 7:
+      x = getMixin();
+      addDelimiter = false;
+      break;
   }
 
-  return sc
-      .concat([x])
-      .concat([getDeclDelim()])
-      .concat(getSC());
+  var result = sc.concat([x]);
+
+  if (addDelimiter) {
+    result = result.concat([getDeclDelim()]);
+  }
+
+  result = result.concat(getSC());
+
+  return result;
 }
 
 /**
