@@ -3639,7 +3639,8 @@ function checkCompoundSelector1(i) {
   let l;
   if (l = checkPercentage(i) ||
       checkTypeSelector(i) ||
-      checkParentSelectorWithExtension(i)) i += l;
+      checkParentSelectorWithExtension(i) ||
+      checkCombinator(i)) i += l;
   else return 0;
 
   while (i < tokensLength) {
@@ -3664,6 +3665,7 @@ function getCompoundSelector1() {
   else if (checkTypeSelector(pos)) sequence.push(getTypeSelector());
   else if (checkParentSelectorWithExtension(pos))
     sequence = sequence.concat(getParentSelectorWithExtension());
+  else if (checkCombinator(pos)) sequence.push(getCombinator());
 
   while (pos < compoundSelectorEnd) {
     if (checkShash(pos)) sequence.push(getShash());
