@@ -3637,7 +3637,8 @@ function checkCompoundSelector1(i) {
   let start = i;
 
   let l;
-  if (l = checkTypeSelector(i) ||
+  if (l = checkPercentage(i) ||
+      checkTypeSelector(i) ||
       checkParentSelectorWithExtension(i)) i += l;
   else return 0;
 
@@ -3659,7 +3660,8 @@ function getCompoundSelector1() {
   let sequence = [];
   let compoundSelectorEnd = tokens[pos].compoundSelectorEnd;
 
-  if (checkTypeSelector(pos)) sequence.push(getTypeSelector());
+  if (checkPercentage(pos)) sequence.push(getPercentage());
+  else if (checkTypeSelector(pos)) sequence.push(getTypeSelector());
   else if (checkParentSelectorWithExtension(pos))
     sequence = sequence.concat(getParentSelectorWithExtension());
 
