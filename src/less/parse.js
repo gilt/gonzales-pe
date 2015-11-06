@@ -3647,7 +3647,8 @@ function checkCompoundSelector1(i) {
     let l = checkShash(i) ||
         checkClass(i) ||
         checkAttributeSelector(i) ||
-        checkPseudo(i);
+        checkPseudo(i) ||
+        checkIdent(i);
     if (l) i += l;
     else break;
   }
@@ -3672,6 +3673,7 @@ function getCompoundSelector1() {
     else if (checkClass(pos)) sequence.push(getClass());
     else if (checkAttributeSelector(pos)) sequence.push(getAttributeSelector());
     else if (checkPseudo(pos)) sequence.push(getPseudo());
+    else if (checkIdent(pos)) sequence.push(getIdent());
   }
 
   return sequence;
