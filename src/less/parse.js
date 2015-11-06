@@ -3641,7 +3641,6 @@ function checkCompoundSelector1(i) {
       checkTypeSelector(i) ||
       checkParentSelectorWithExtension(i) ||
       checkCombinator(i)) i += l;
-  else return 0;
 
   while (i < tokensLength) {
     let l = checkShash(i) ||
